@@ -1,3 +1,3 @@
-git add src/App.tsx src/components/PhotoPreview.tsx src/components/RecipeSelector.tsx
-git commit -m "Fix TypeScript unused variable errors"
+git add .github/workflows/build.yml
+git commit -m "Fix workflow to use npm install instead of npm ci"
 git push
