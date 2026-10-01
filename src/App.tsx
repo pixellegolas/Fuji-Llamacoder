@@ -1,173 +1,186 @@
-import { useEffect, useRef, useState } from "react"
-import { Camera, Download, RefreshCw, X } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { FilmRecipe, FILM_RECIPES } from "./types/film"
-import { PhotoPreview } from "./components/PhotoPreview"
-import { RecipeSelector } from "./components/RecipeSelector"
+import { useState, useRef, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Camera, Download, RefreshCw, Film } from "lucide-react";
+import { filmRecipes, applyFilmRecipe, type FilmRecipe } from "@/lib/filmRecipes";
+import { cn } from "@/lib/utils";
+
+// Capacitor imports (will be available in the native app)
+declare const Capacitor: any;
 
 export default function App() {
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const streamRef = useRef<MediaStream | null>(null)
-  const [isCameraOn, setIsCameraOn] = useState(false)
-  const [photo, setPhoto] = useState<string | null>(null)
-  const [selectedRecipe, setSelectedRecipe] = useState<FilmRecipe>(FILM_RECIPES[0])
-  const [error, setError] = useState<string | null>(null)
+  const [photo, setPhoto] = useState<string | null>(null);
+  const [processedPhoto, setProcessedPhoto] = useState<string | null>(null);
+  const [selectedRecipe, setSelectedRecipe] = useState<FilmRecipe>(filmRecipes[0]);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isNative, setIsNative] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    return () => {
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop())
-      }
+    // Check if running in Capacitor native environment
+    if (typeof Capacitor !== 'undefined' && Capacitor.isNativePlatform()) {
+      setIsNative(true);
     }
-  }, [])
+  }, []);
 
-  const startCamera = async () => {
+  const takePhoto = async () => {
     try {
-      setError(null)
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment", width: { ideal: 1920 }, height: { ideal: 1080 } },
-        audio: false
-      })
-      streamRef.current = stream
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream
-        await videoRef.current.play()
+      if (isNative) {
+        // Use Capacitor Camera plugin for native
+        const { Camera } = await import('@capacitor/camera');
+        const image = await Camera.getPhoto({
+          quality: 100,
+          allowEditing: false,
+          resultType: 'dataUrl',
+          saveToGallery: false
+        });
+        setPhoto(image.dataUrl);
+        setProcessedPhoto(null);
+      } else {
+        // Fallback for web - use file input
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.onchange = (e) => {
+          const file = (e.target as HTMLInputElement).files?.[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+              setPhoto(ev.target?.result as string);
+              setProcessedPhoto(null);
+            };
+            reader.readAsDataURL(file);
+          }
+        };
+        input.click();
       }
-      setIsCameraOn(true)
-    } catch (err) {
-      setError("Camera permission denied. Please enable camera access in settings.")
-      console.error("Camera error:", err)
+    } catch (error) {
+      console.error('Error taking photo:', error);
     }
-  }
+  };
 
-  const stopCamera = () => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop())
-      streamRef.current = null
-    }
-    setIsCameraOn(false)
-  }
-
-  const capturePhoto = () => {
-    if (!videoRef.current) return
-    const canvas = document.createElement("canvas")
-    canvas.width = videoRef.current.videoWidth
-    canvas.height = videoRef.current.videoHeight
-    const ctx = canvas.getContext("2d")
-    if (!ctx) return
-    ctx.drawImage(videoRef.current, 0, 0)
-    setPhoto(canvas.toDataURL("image/jpeg", 0.95))
-  }
+  const processPhoto = () => {
+    if (!photo) return;
+    setIsProcessing(true);
+    
+    const img = new Image();
+    img.onload = () => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      
+      ctx.drawImage(img, 0, 0);
+      applyFilmRecipe(ctx, selectedRecipe);
+      setProcessedPhoto(canvas.toDataURL('image/jpeg', 0.95));
+      setIsProcessing(false);
+    };
+    img.src = photo;
+  };
 
   const downloadPhoto = () => {
-    if (!photo) return
-    const link = document.createElement("a")
-    link.download = `filmlab-${selectedRecipe.id}-${Date.now()}.jpg`
-    link.href = photo
-    link.click()
-  }
-
-  const reset = () => {
-    setPhoto(null)
-    setSelectedRecipe(FILM_RECIPES[0])
-  }
+    if (!processedPhoto) return;
+    const link = document.createElement('a');
+    link.download = `fuji-${selectedRecipe.name.toLowerCase().replace(/\s+/g, '-')}.jpg`;
+    link.href = processedPhoto;
+    link.click();
+  };
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
-      <header className="border-b border-zinc-800 bg-zinc-900/50 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-amber-400">FilmLab</h1>
-            <p className="text-sm text-zinc-400">Fujifilm Film Recipes</p>
-          </div>
+      <canvas ref={canvasRef} className="hidden" />
+      
+      {/* Header */}
+      <header className="border-b border-zinc-800 bg-zinc-900/50 backdrop-blur-sm">
+        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            {isCameraOn && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={stopCamera}
-                className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
-              >
-                <X className="mr-2 h-4 w-4" />
-                Stop Camera
-              </Button>
-            )}
+            <Film className="w-6 h-6 text-amber-500" />
+            <h1 className="text-xl font-bold tracking-tight">FujiCam</h1>
           </div>
+          <span className="text-sm text-zinc-400">Film Recipes</span>
         </div>
       </header>
 
-      <main className="mx-auto max-w-4xl p-6">
-        {error && (
-          <div className="mb-4 rounded-lg border border-red-500/50 bg-red-500/10 p-4 text-red-400">
-            {error}
-          </div>
-        )}
-
-        <div className="grid gap-6 lg:grid-cols-2">
-          <div className="space-y-4">
-            <div className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900">
-              <div className="relative aspect-video bg-black">
-                {isCameraOn ? (
-                  <video
-                    ref={videoRef}
-                    className="h-full w-full object-cover"
-                    playsInline
-                    muted
-                  />
-                ) : (
-                  <div className="flex h-full items-center justify-center">
-                    <Camera className="h-12 w-12 text-zinc-600" />
-                  </div>
-                )}
-              </div>
-              <div className="flex items-center justify-between p-4">
-                <Button
-                  onClick={isCameraOn ? capturePhoto : startCamera}
-                  className="bg-amber-500 text-zinc-900 hover:bg-amber-400"
-                >
-                  {isCameraOn ? "Capture" : "Start Camera"}
-                </Button>
-                {photo && (
-                  <Button
-                    variant="outline"
-                    onClick={reset}
-                    className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
-                  >
-                    <RefreshCw className="mr-2 h-4 w-4" />
-                    Reset
-                  </Button>
-                )}
-              </div>
+      <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+        {/* Camera/Photo area */}
+        <Card className="bg-zinc-900 border-zinc-800 shadow-xl">
+          <CardContent className="p-4">
+            <div className="aspect-video bg-zinc-950 rounded-lg overflow-hidden flex items-center justify-center">
+              {photo ? (
+                <img 
+                  src={processedPhoto || photo} 
+                  alt="Captured" 
+                  className="w-full h-full object-contain"
+                />
+              ) : (
+                <div className="text-center space-y-4">
+                  <Camera className="w-16 h-16 text-zinc-600 mx-auto" />
+                  <p className="text-zinc-500 text-sm">
+                    {isNative ? 'Tap to take a photo' : 'Select an image to apply film recipes'}
+                  </p>
+                </div>
+              )}
             </div>
-
-            {photo && (
-              <div className="flex gap-2">
-                <Button
-                  onClick={downloadPhoto}
-                  className="flex-1 bg-emerald-500 text-zinc-900 hover:bg-emerald-400"
+            
+            <div className="mt-4 flex gap-3">
+              <Button 
+                onClick={takePhoto}
+                className="flex-1 bg-amber-600 hover:bg-amber-700 text-white"
+              >
+                <Camera className="w-4 h-4 mr-2" />
+                {photo ? 'Retake' : 'Take Photo'}
+              </Button>
+              {photo && !processedPhoto && (
+                <Button 
+                  onClick={processPhoto}
+                  disabled={isProcessing}
+                  className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white"
                 >
-                  <Download className="mr-2 h-4 w-4" />
-                  Download
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  {isProcessing ? 'Processing...' : 'Apply Recipe'}
                 </Button>
-              </div>
-            )}
-          </div>
+              )}
+              {processedPhoto && (
+                <Button 
+                  onClick={downloadPhoto}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Save
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
-          <div className="space-y-4">
-            <RecipeSelector
-              recipes={FILM_RECIPES}
-              selected={selectedRecipe}
-              onSelect={setSelectedRecipe}
-            />
-            {photo && (
-              <PhotoPreview
-                photo={photo}
-                recipe={selectedRecipe}
-              />
-            )}
-          </div>
+        {/* Film recipes */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          {filmRecipes.map((recipe) => (
+            <button
+              key={recipe.name}
+              onClick={() => setSelectedRecipe(recipe)}
+              className={cn(
+                "p-4 rounded-xl border text-left transition-all",
+                selectedRecipe.name === recipe.name
+                  ? "border-amber-500 bg-amber-500/10 shadow-lg"
+                  : "border-zinc-800 bg-zinc-900 hover:border-zinc-700"
+              )}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-semibold text-sm">{recipe.name}</span>
+                <span 
+                  className="w-3 h-3 rounded-full"
+                  style={{ backgroundColor: recipe.accentColor }}
+                />
+              </div>
+              <p className="text-xs text-zinc-400">{recipe.description}</p>
+            </button>
+          ))}
         </div>
       </main>
     </div>
-  )
+  );
 }
