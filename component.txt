@@ -1,2 +1,7 @@
 
-### Build for Production
+**If you're using GitHub Codespaces or a web-based editor:**
+
+1. Open the terminal panel (usually at the bottom)
+2. Type `npm install` and press Enter
+
+**Important:** Before running `npm install`, make sure your `package.json` has `vite` in devDependencies:

@@ -1,3 +1,2 @@
-git add .
-git commit -m "Clean up workflows - single build workflow"
-git push
+npm install
+npm run build
