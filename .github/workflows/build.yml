@@ -38,6 +38,10 @@ jobs:
       - name: Add Android platform
         run: npx cap add android
         
+      - name: Add camera permissions
+        run: |
+          sed -i 's|<uses-permission android:name="android.permission.INTERNET" />|<uses-permission android:name="android.permission.INTERNET" />\n    <uses-permission android:name="android.permission.CAMERA" />\n    <uses-permission android:name="android.permission.RECORD_AUDIO" />\n    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />\n    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />|' android/app/src/main/AndroidManifest.xml
+          
       - name: Sync Capacitor
         run: npx cap sync android
         
