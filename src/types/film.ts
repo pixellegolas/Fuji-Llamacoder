@@ -3,89 +3,61 @@ export interface FilmRecipe {
   name: string
   film: string
   description: string
-  saturation: number
-  contrast: number
-  brightness: number
-  hueRotate: number
-  sepia: number
+  grain: number
+  shadows: number
+  highlights: number
+  color: number
 }
 
 export const FILM_RECIPES: FilmRecipe[] = [
   {
+    id: "classic-cuban-negative",
+    name: "Classic Cuban Negative",
+    film: "Fujifilm X100V",
+    description: "Warm, nostalgic tones with soft contrast",
+    grain: 0.95,
+    shadows: 25,
+    highlights: 12,
+    color: 1.1
+  },
+  {
     id: "classic-chrome",
     name: "Classic Chrome",
-    film: "Fujifilm X-Trans",
-    description: "Muted colors with rich shadows",
-    saturation: 0.8,
-    contrast: 1.1,
-    brightness: 0.95,
-    hueRotate: 0,
-    sepia: 0.1
+    film: "Fujifilm X100V",
+    description: "Muted colors with deep shadows",
+    grain: 0.9,
+    shadows: 20,
+    highlights: 10,
+    color: 0.8
   },
   {
     id: "velvia",
     name: "Velvia",
-    film: "Fujichrome Velvia 50",
+    film: "Fujifilm X-T4",
     description: "Vivid, saturated colors",
-    saturation: 1.4,
-    contrast: 1.2,
-    brightness: 1.0,
-    hueRotate: 0,
-    sepia: 0
+    grain: 1.0,
+    shadows: 15,
+    highlights: 5,
+    color: 1.2
   },
   {
-    id: "provia",
-    name: "Provia",
-    film: "Fujichrome Provia 100F",
-    description: "Natural, balanced colors",
-    saturation: 1.0,
-    contrast: 1.0,
-    brightness: 1.0,
-    hueRotate: 0,
-    sepia: 0
-  },
-  {
-    id: "astia",
-    name: "Astia",
-    film: "Fujichrome Astia 100F",
-    description: "Soft, gentle tones",
-    saturation: 0.9,
-    contrast: 0.9,
-    brightness: 1.05,
-    hueRotate: 0,
-    sepia: 0.05
-  },
-  {
-    id: "pro-neg-hi",
+    id: "pro-neg",
     name: "Pro Neg Hi",
-    film: "Fujicolor Pro 400H",
-    description: "High contrast with warm tones",
-    saturation: 0.85,
-    contrast: 1.15,
-    brightness: 0.95,
-    hueRotate: 5,
-    sepia: 0.15
+    film: "Fujifilm X-Pro3",
+    description: "Soft contrast with warm tones",
+    grain: 0.85,
+    shadows: 25,
+    highlights: 15,
+    color: 0.9
   },
   {
-    id: "pro-neg-std",
-    name: "Pro Neg Std",
-    film: "Fujicolor Pro 160NS",
-    description: "Soft, natural skin tones",
-    saturation: 0.9,
-    contrast: 0.95,
-    brightness: 1.0,
-    hueRotate: 0,
-    sepia: 0.1
-  },
-  {
-    id: "cuban-negative",
-    name: "Cuban Negative",
-    film: "Fujicolor C200",
-    description: "Warm, nostalgic tones with faded blacks",
-    saturation: 0.7,
-    contrast: 0.85,
-    brightness: 1.1,
-    hueRotate: 15,
-    sepia: 0.3
+    id: "acros",
+    name: "ACROS",
+    film: "Fujifilm X-E4",
+    description: "Classic black and white",
+    grain: 1.1,
+    shadows: 30,
+    highlights: 20,
+    color: 0.5
   }
 ]

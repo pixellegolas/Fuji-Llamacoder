@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.filmlab.app',
-  appName: 'FilmLab',
+  appId: 'com.filmlab.camera',
+  appName: 'FilmLab Camera',
   webDir: 'dist',
   android: {
     allowMixedContent: true,
@@ -12,11 +12,6 @@ const config: CapacitorConfig = {
       'android.permission.WRITE_EXTERNAL_STORAGE',
       'android.permission.READ_EXTERNAL_STORAGE'
     ]
-  },
-  plugins: {
-    Camera: {
-      permissions: ['camera', 'photos']
-    }
   }
 };
 

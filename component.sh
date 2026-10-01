@@ -1,3 +1,3 @@
-git add .github/workflows/build.yml
-git commit -m "Fix workflow to handle missing lock file"
+git add src/types/film.ts src/components/PhotoPreview.tsx
+git commit -m "Add Classic Cuban Negative recipe and improve film effects"
 git push
