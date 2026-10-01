@@ -31,8 +31,8 @@ jobs:
     - name: Build web assets
       run: npm run build
     
-    - name: Sync Capacitor
-      run: npx cap sync android
+    - name: Install Capacitor CLI
+      run: npx @capacitor/cli sync android
     
     - name: Build Android APK
       run: cd android && ./gradlew assembleDebug
