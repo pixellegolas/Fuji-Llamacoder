@@ -1,5 +1,4 @@
 import { FilmRecipe } from "../types/film"
-import { Button } from "@/components/ui/button"
 
 interface RecipeSelectorProps {
   recipes: FilmRecipe[]

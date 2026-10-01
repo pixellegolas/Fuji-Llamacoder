@@ -163,7 +163,6 @@ export default function App() {
               <PhotoPreview
                 photo={photo}
                 recipe={selectedRecipe}
-                onRecipeChange={setSelectedRecipe}
               />
             )}
           </div>

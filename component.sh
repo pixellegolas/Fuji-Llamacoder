@@ -1,3 +1,3 @@
-git add src/types/film.ts src/components/PhotoPreview.tsx
-git commit -m "Add Classic Cuban Negative recipe and improve film effects"
+git add src/App.tsx src/components/PhotoPreview.tsx src/components/RecipeSelector.tsx
+git commit -m "Fix TypeScript unused variable errors"
 git push

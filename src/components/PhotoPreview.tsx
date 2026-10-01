@@ -4,10 +4,9 @@ import { FilmRecipe } from "../types/film"
 interface PhotoPreviewProps {
   photo: string
   recipe: FilmRecipe
-  onRecipeChange: (recipe: FilmRecipe) => void
 }
 
-export function PhotoPreview({ photo, recipe, onRecipeChange }: PhotoPreviewProps) {
+export function PhotoPreview({ photo, recipe }: PhotoPreviewProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
