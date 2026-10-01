@@ -1,3 +1,3 @@
-git add src/components/PhotoPreview.tsx
-git commit -m "Fix unused onRecipeChange prop"
+git add .github/workflows/build.yml
+git commit -m "Fix workflow to handle missing lock file"
 git push
