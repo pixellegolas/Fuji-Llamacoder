@@ -1,8 +1,8 @@
-# Install Capacitor
-npm install @capacitor/core @capacitor/cli @capacitor/android
+# Delete the duplicate workflow files
+rm .github/workflows/build-apk.yml
+rm .github/workflows/deplay.yml
 
-# Initialize Capacitor
-npx cap init "Fuji Camera" "com.fujicamera.app" --web-dir=dist
-
-# Add Android platform
-npx cap add android
+# Commit and push
+git add .
+git commit -m "Fix workflow - remove duplicates, use cap sync"
+git push
