@@ -1,8 +1,9 @@
-# Delete the duplicate workflow files
-rm .github/workflows/build-apk.yml
-rm .github/workflows/deplay.yml
+# List all workflow files
+ls .github/workflows/
 
-# Commit and push
-git add .
-git commit -m "Fix workflow - remove duplicates, use cap sync"
-git push
+# Delete ALL workflow files
+rm -rf .github/workflows/*.yml
+rm -rf .github/workflows/*.yaml
+
+# Now create the new workflow file
+mkdir -p .github/workflows

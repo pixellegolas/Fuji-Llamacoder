@@ -1,3 +1,3 @@
 git add .
-git commit -m "Add Capacitor Android setup and APK build workflow"
+git commit -m "Clean up workflows - single build workflow"
 git push
