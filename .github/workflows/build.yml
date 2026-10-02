@@ -30,6 +30,13 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
+    - name: Add Android platform
+      run: |
+        if [ ! -d "android" ] || [ ! -f "android/gradlew" ]; then
+          rm -rf android
+          npx cap add android
+        fi
+
     - name: Sync Capacitor
       run: npx cap sync android
 
